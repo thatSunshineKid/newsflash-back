@@ -125,7 +125,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-DEBUG = False
+DEBUG = True
 
 
 # Static files (CSS, JavaScript, Images)
