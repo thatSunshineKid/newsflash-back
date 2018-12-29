@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Backend For Newsflash Models built by Adam Sunshine
 
-
 from __future__ import unicode_literals
 from django.db import models
 import uuid
@@ -66,6 +65,7 @@ class Post(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
   tags = models.ManyToManyField(Tag)
   sub_tags = models.ManyToManyField(Subtag)
+  is_public = models.BooleanField(default=True)
 
   class Meta:
     ordering = ['-created_at']
