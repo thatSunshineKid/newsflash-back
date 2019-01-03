@@ -13,3 +13,19 @@ from .models import Author, Post
 class NewsbotList(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+
+class TechpostList(generics.ListAPIView):
+    queryset = Post.objects.filter(tags__in=[4])
+    serializer_class = PostSerializer
+
+
+class SportspostList(generics.ListAPIView):
+    queryset = Post.objects.filter(tags__in=[2])
+    serializer_class = PostSerializer
+
+class PoliticspostList(generics.ListAPIView):
+    queryset = Post.objects.filter(tags__in=[1])
+    serializer_class = PostSerializer
+
+
