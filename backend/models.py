@@ -25,6 +25,9 @@ class Author(models.Model):
 
         return '%s %s' % (self.user.first_name, self.user.last_name)
 
+  def __unicode__(self):
+        return '%s %s' % (self.user.first_name, self.user.last_name)
+
 class Tag(models.Model):
   """Class representing a topic of news discussion or category. E.g. Sports, Politics, Tech, etc."""
   name = models.CharField(max_length=50)
