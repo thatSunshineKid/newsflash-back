@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from backend import views
 
 urlpatterns = [
+    url("^auth/register/$", views.RegistrationAPI.as_view()),
     url('test/', views.NewsbotList.as_view()),
     url('tech/', views.TechpostList.as_view()),
     url('sports/', views.SportspostList.as_view()),
