@@ -134,7 +134,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-DEBUG = False
+DEBUG = True
 
 REST_KNOX = {
     'TOKEN_TTL': timedelta(hours=12),
