@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-
+from datetime import timedelta
 
 try:
   from .local_settings import *
@@ -126,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Denver'
 
 USE_I18N = True
 
@@ -134,7 +134,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-DEBUG = True
+DEBUG = False
+
+REST_KNOX = {
+    'TOKEN_TTL': timedelta(hours=12),
+}
 
 
 # Static files (CSS, JavaScript, Images)
