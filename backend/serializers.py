@@ -92,7 +92,6 @@ class CreatePostSerializer(serializers.ModelSerializer):
             post.sub_tags.add(s)
         post.save()
         return post
-        #have to add tags via .add(tags) or .set(tags). will do when I get home.
 
 class CreateAuthorSerializer(serializers.ModelSerializer):
     class Meta:
