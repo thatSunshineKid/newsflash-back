@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render
 
-from.serializers import PostSerializer, CreateAuthorSerializer, UserSerializer, LoginUserSerializer
+from.serializers import PostSerializer, CreateAuthorSerializer, UserSerializer, LoginUserSerializer, CreatePostSerializer
 from rest_framework import generics, viewsets, permissions
 from .models import Author, Post
 
@@ -56,6 +56,18 @@ class LoginAPI(generics.GenericAPIView):
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": AuthToken.objects.create(user)
         })
+
+class CreatePostAPI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated, ]
+    serializer_class = CreatePostSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        post = serializer.save()
+        return Response({
+            "post": PostSerializer(post, context=self.get_serializer_context()).data
+            })
 
 class UserAPI(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
