@@ -56,7 +56,7 @@ class Subtag(models.Model):
       """
       Returns the url to access a particular subtag.
       """
-      return reverse('tag-detail', args=[str(self.id)])
+      return reverse('subtag-detail', args=[str(self.id)])
 
 
 class Post(models.Model):
@@ -66,8 +66,8 @@ class Post(models.Model):
   url = models.URLField(max_length=1000)
   source = models.ForeignKey('Source', on_delete=models.CASCADE, null=True)
   created_at = models.DateTimeField(auto_now_add=True)
-  tags = models.ManyToManyField(Tag)
-  sub_tags = models.ManyToManyField(Subtag)
+  tags = models.ManyToManyField(Tag, null=True)
+  sub_tags = models.ManyToManyField(Subtag, null=True)
   is_public = models.BooleanField(default=True)
 
   class Meta:
