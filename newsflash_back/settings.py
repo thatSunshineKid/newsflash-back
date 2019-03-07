@@ -115,7 +115,8 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:3000',
     'localhost:8000',
     '127.0.0.1:9000',
-    'https://infinite-news.herokuapp.com'
+    'infinite-news.herokuapp.com',
+    'newsflash-front.herokuapp.com',
 )
 
 
