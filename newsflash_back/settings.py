@@ -112,8 +112,8 @@ DATABASES = {
 }
 
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-    'http://localhost:8000',
+    'localhost:3000',
+    'localhost:8000',
     '127.0.0.1:9000',
     'https://infinite-news.herokuapp.com'
 )
