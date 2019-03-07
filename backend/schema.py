@@ -54,7 +54,6 @@ class Query(object):
     all_sources = graphene.List(SourceType)
     all_authors = graphene.List(AuthorType)
     user = graphene.Field(UserType)
-    my_posts = graphene.List(PostType)
     author = graphene.Field(AuthorType)
     me = graphene.Field(AuthorType)
     my_posts = graphene.List(PostType)

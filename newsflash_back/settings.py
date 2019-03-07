@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'knox',
+    'corsheaders',
+    'graphene_django',
 
 ]
 
@@ -65,6 +67,8 @@ MIDDLEWARE = [
     'graphql_jwt.middleware.JSONWebTokenMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -106,6 +110,13 @@ DATABASES = {
         'PORT': '',
     }
 }
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:3000',
+    'localhost:8000',
+    '127.0.0.1:9000',
+    'infinite-news.herokuapp.com'
+)
 
 
 # Password validation
