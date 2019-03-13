@@ -113,8 +113,17 @@ class CreateTag(graphene.Mutation):
         name = graphene.String(required=True)
         description = graphene.String(required=True)
     def mutate(self, info, name, description):
-        tag = Tag.objects.create(name=name,vdescription=description)
+        tag = Tag.objects.create(name=name, description=description)
         return CreateTag(tag)
+
+class CreateSubtag(graphene.Mutation):
+    subtag = graphene.Field(SubtagType)
+    class Arguments:
+        name = graphene.String(required=True)
+        description = graphene.String(required=True)
+    def mutate(self,info, name, description):
+        subtag = Subtag.objects.create(name=name, description=description)
+        return CreateSubtag(subtag)
 
 class Query(object):
     all_posts = graphene.List(PostType)
@@ -172,6 +181,7 @@ class Mutation(object):
     create_author = CreateAuthor.Field()
     create_post = CreatePost.Field()
     create_tag = CreateTag.Field()
+    create_subtag = CreateSubtag.Field()
 
 
 
