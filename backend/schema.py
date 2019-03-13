@@ -1,4 +1,4 @@
-# cookbook/ingredients/schema.py
+
 import graphene
 import graphql_jwt
 from django.contrib.auth.models import User
@@ -23,6 +23,65 @@ class UserType(DjangoObjectType):
     class Meta:
         model = User
 
+class TagType(DjangoObjectType):
+    class Meta:
+        model = Tag
+
+class SubtagType(DjangoObjectType):
+    class Meta:
+        model = Subtag
+
+class CreatePost(graphene.Mutation):
+    post = graphene.Field(PostType)
+
+    class Arguments:
+        title = graphene.String(required=True)
+        url = graphene.String(required=True)
+        tags = graphene.List(graphene.String)
+        subtags = graphene.List(graphene.String)
+        is_public = graphene.Boolean()
+
+    def mutate(self, info, title, url, tags, subtags, is_public, base_url=None):
+        #build the post object from these arguments. copy from before logic
+        #KISS
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('not logged in!')
+        else:
+            author = user.author
+            lurl = url.split("/")
+            if lurl[2]:
+                dom = lurl[2]
+            else:
+                dom = lurl[0]
+            try:
+                # raise Exception('dom is %s' % (dom))
+                match = Source.objects.get(base_url=dom)
+            except Source.DoesNotExist:
+                match = Source.objects.create(base_url=dom, title=dom)
+            t_l = []
+            st_l= []
+            for t in tags:
+                try:
+                    a_t = Tag.objects.get(name=t)
+                except Tag.DoesNotExist:
+                    a_t = Tag.objects.create(name=t, description="added via quickadd from %s." % (author))
+                t_l.append(a_t)
+                a_t = None
+            for s in subtags:
+                try:
+                    a_st = Subtag.objects.get(name=s)
+                except Subtag.DoesNotExist:
+                    a_st = Subtag.objects.create(name=s, description="added via quickadd from %s." % (author))
+                st_l.append(a_st)
+                a_st = None
+            post = Post.objects.create(author=author, title=title, url=url, source=match, is_public=is_public)
+            for x in t_l:
+                post.tags.add(x)
+            for y in st_l:
+                post.sub_tags.add(y)
+            post.save()
+        return CreatePost(post=post)
 
 class CreateAuthor(graphene.Mutation):
     user = graphene.Field(UserType)
@@ -48,6 +107,14 @@ class CreateAuthor(graphene.Mutation):
 
         return CreateAuthor(user=user)
 
+class CreateTag(graphene.Mutation):
+    tag = graphene.Field(TagType)
+    class Arguments:
+        name = graphene.String(required=True)
+        description = graphene.String(required=True)
+    def mutate(self, info, name, description):
+        tag = Tag.objects.create(name=name,vdescription=description)
+        return CreateTag(tag)
 
 class Query(object):
     all_posts = graphene.List(PostType)
@@ -55,8 +122,11 @@ class Query(object):
     all_authors = graphene.List(AuthorType)
     user = graphene.Field(UserType)
     author = graphene.Field(AuthorType)
+    source = graphene.Field(SourceType)
     me = graphene.Field(AuthorType)
     my_posts = graphene.List(PostType)
+    all_tags = graphene.List(TagType)
+    all_subtags = graphene.List(SubtagType)
 
     def resolve_all_posts(self, info, **kwargs):
         return Post.objects.all()
@@ -88,11 +158,20 @@ class Query(object):
         else:
             return Post.objects.filter(author = user.author)
 
+    def resolve_all_tags(self, info):
+        return Tag.objects.all()
+
+    def resolve_all_subtags(self, info):
+        return Subtag.objects.all()
 
 
+    def resolve_source(self, info):
+        return Post.source
 
 class Mutation(object):
     create_author = CreateAuthor.Field()
+    create_post = CreatePost.Field()
+    create_tag = CreateTag.Field()
 
 
 
