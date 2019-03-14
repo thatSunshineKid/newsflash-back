@@ -69,6 +69,7 @@ class Post(models.Model):
   tags = models.ManyToManyField(Tag, null=True)
   sub_tags = models.ManyToManyField(Subtag, null=True)
   is_public = models.BooleanField(default=True)
+  description = models.CharField(max_length=300, null=True)
 
   class Meta:
     ordering = ['-created_at']
