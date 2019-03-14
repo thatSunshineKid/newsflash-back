@@ -64,7 +64,7 @@ class Post(models.Model):
   title = models.CharField(max_length=100)
   author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
   url = models.URLField(max_length=1000)
-  source = models.ForeignKey('Source', on_delete=models.CASCADE, null=True)
+  source = models.ForeignKey('Source', on_delete=models.SET_NULL, null=True)
   created_at = models.DateTimeField(auto_now_add=True)
   tags = models.ManyToManyField(Tag, null=True)
   sub_tags = models.ManyToManyField(Subtag, null=True)
@@ -103,3 +103,19 @@ class Source(models.Model):
         Returns the url to access a particular post instance.
         """
         return reverse('source-detail', args=[str(self.id)])
+
+class Comment(models.Model):
+    post = models.ForeignKey('Post', related_name="comments", related_query_name="comments", on_delete=models.CASCADE, null=False)
+    message = models.CharField(max_length=300)
+    author = models.ForeignKey('Author', on_delete=models.CASCADE, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_public = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.message
+
+    def get_absolute_url(self):
+        """
+        Returns the url to access a particular post instance.
+        """
+        return reverse('comment-detail', args=[str(self.id)])

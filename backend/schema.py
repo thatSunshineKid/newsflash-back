@@ -31,6 +31,10 @@ class SubtagType(DjangoObjectType):
     class Meta:
         model = Subtag
 
+class CommentType(DjangoObjectType):
+    class Meta:
+        model = Comment
+
 class CreatePost(graphene.Mutation):
     post = graphene.Field(PostType)
 
@@ -136,6 +140,7 @@ class Query(object):
     my_posts = graphene.List(PostType)
     all_tags = graphene.List(TagType)
     all_subtags = graphene.List(SubtagType)
+    comments = graphene.List(CommentType)
 
     def resolve_all_posts(self, info, **kwargs):
         return Post.objects.all()
@@ -176,6 +181,9 @@ class Query(object):
 
     def resolve_source(self, info):
         return Post.source
+
+    def resolve_comments(self, info):
+        return Post.comments.all()
 
 class Mutation(object):
     create_author = CreateAuthor.Field()
