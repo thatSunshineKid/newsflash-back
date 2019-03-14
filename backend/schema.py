@@ -44,6 +44,7 @@ class CreatePost(graphene.Mutation):
         tags = graphene.List(graphene.String)
         subtags = graphene.List(graphene.String)
         is_public = graphene.Boolean()
+        description = graphene.String()
 
     def mutate(self, info, title, url, tags, subtags, is_public, base_url=None):
         #build the post object from these arguments. copy from before logic
@@ -59,7 +60,6 @@ class CreatePost(graphene.Mutation):
             else:
                 dom = lurl[0]
             try:
-                # raise Exception('dom is %s' % (dom))
                 match = Source.objects.get(base_url=dom)
             except Source.DoesNotExist:
                 match = Source.objects.create(base_url=dom, title=dom)
@@ -79,13 +79,92 @@ class CreatePost(graphene.Mutation):
                     a_st = Subtag.objects.create(name=s, description="added via quickadd from %s." % (author))
                 st_l.append(a_st)
                 a_st = None
-            post = Post.objects.create(author=author, title=title, url=url, source=match, is_public=is_public)
+            post = Post.objects.create(author=author, title=title, url=url, source=match, is_public=is_public, description=description)
             for x in t_l:
                 post.tags.add(x)
             for y in st_l:
                 post.sub_tags.add(y)
             post.save()
         return CreatePost(post=post)
+
+class EditPost(graphene.Mutation):
+    post = graphene.Field(PostType)
+
+    class Arguments:
+        post_id = graphene.Int(required=True)
+        title = graphene.String()
+        url = graphene.String()
+        add_tags = graphene.List(graphene.String)
+        remove_tags = graphene.List(graphene.String)
+        add_subtags = graphene.List(graphene.String)
+        remove_subtags = graphene.List(graphene.String)
+        is_public = graphene.Boolean()
+        description = graphene.String()
+
+    def mutate(self, info, post_id, title, url, add_tags, remove_tags, add_subtags, remove_subtags, is_public, description):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('not logged in!')
+        else:
+            try:
+                post = Post.objects.get(id=post_id)
+            except Post.DoesNotExist:
+                raise Exception('No post found with id %s' % (post_id))
+            if (post.author.id != user.author.id):
+                raise Exception('only the author can edit their own posts')
+            else:
+                post.title = title
+                post.is_public = is_public
+                post.description = description
+                if (url == post.url):
+                    z = 1
+                else:
+                    post.url = url
+                    if (post.source.base_url == url.split("/")[ 2 if url.split("/")[2] else 0 ]):
+                        pass
+                    else:
+                        dom = url.split("/")[ 2 if url.split("/")[2] else 0 ]
+                        try:
+                            a_s = Source.objects.get(base_url=dom)
+                        except Source.DoesNotExist:
+                            a_s = Source.objects.create(base_url=dom, title=dom)
+                        post.source = a_s
+                for t in add_tags:
+                    try:
+                        a_t = Tag.objects.get(name=t)
+                    except Tag.DoesNotExist:
+                        raise Exception('create Tag from Edit Post is not supported. Please create tag %s first and then add it to this post.' % (t))
+                    post.tags.add(a_t)
+                    a_t = None
+                for s in add_subtags:
+                    try:
+                        s_t = Subtag.objects.get(name=s)
+                    except Subtag.DoesNotExist:
+                        raise Exception('create Subtag from Edit Post is not supported. Please create subtag %s first and then add it to this post.' % (s))
+                    post.sub_tags.add(s_t)
+                    s_t = None
+                for x in remove_tags:
+                    try:
+                        x_t = Tag.objects.get(name=x)
+                    except Tag.DoesNotExist:
+                        raise Exception('tag no exist!')
+                    if x_t in post.tags.all():
+                        post.tags.remove(x_t)
+                        x_t = None
+                    else:
+                        raise Exception('this tag %s is not attached to this post.' % (x_t))
+                for y in remove_subtags:
+                    try:
+                        y_s = Subtag.objects.get(name=y)
+                    except Subtag.DoesNotExist:
+                        raise Exception('subtag no exist!')
+                    if y_s in post.sub_tags.all():
+                        post.sub_tags.remove(y_s)
+                        y_s = None
+                    else:
+                        raise Exception('this subtag %s is not attached to this post.' % (y_s))
+                post.save()
+                return EditPost(post)
 
 class CreateAuthor(graphene.Mutation):
     user = graphene.Field(UserType)
@@ -208,6 +287,7 @@ class Mutation(object):
     create_tag = CreateTag.Field()
     create_subtag = CreateSubtag.Field()
     create_comment = CreateComment.Field()
+    edit_post = EditPost.Field()
 
 
 
