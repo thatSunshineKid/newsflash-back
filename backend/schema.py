@@ -129,6 +129,23 @@ class CreateSubtag(graphene.Mutation):
         subtag = Subtag.objects.create(name=name, description=description)
         return CreateSubtag(subtag)
 
+class CreateComment(graphene.Mutation):
+    comment = graphene.Field(CommentType)
+    class Arguments:
+        post_id = graphene.Int(required=True)
+        message = graphene.String(required=True)
+    def mutate(self, info, post_id, message):
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            raise Exception('No post found with id %s' % (post_id))
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('not logged in!')
+        else:
+            comment = Comment.objects.create(author=user.author, post=post, message=message, is_public=True)
+            return CreateComment(comment)
+
 class Query(object):
     all_posts = graphene.List(PostType)
     all_sources = graphene.List(SourceType)
@@ -190,6 +207,7 @@ class Mutation(object):
     create_post = CreatePost.Field()
     create_tag = CreateTag.Field()
     create_subtag = CreateSubtag.Field()
+    create_comment = CreateComment.Field()
 
 
 
