@@ -46,7 +46,7 @@ class CreatePost(graphene.Mutation):
         is_public = graphene.Boolean()
         description = graphene.String()
 
-    def mutate(self, info, title, url, tags, subtags, is_public, base_url=None):
+    def mutate(self, info, title, url, tags, subtags, is_public, description, base_url=None):
         #build the post object from these arguments. copy from before logic
         #KISS
         user = info.context.user
