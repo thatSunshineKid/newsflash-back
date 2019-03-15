@@ -35,6 +35,10 @@ class CommentType(DjangoObjectType):
     class Meta:
         model = Comment
 
+class LikeType(DjangoObjectType):
+    class Meta:
+        model = Like
+
 class CreatePost(graphene.Mutation):
     post = graphene.Field(PostType)
 
@@ -225,6 +229,36 @@ class CreateComment(graphene.Mutation):
             comment = Comment.objects.create(author=user.author, post=post, message=message, is_public=True)
             return CreateComment(comment)
 
+class AddLike(graphene.Mutation):
+    like = graphene.Field(LikeType)
+
+    class Arguments:
+        obj = graphene.String(required=True)
+        obj_id = graphene.Int(required=True)
+
+    def mutate(self, info, obj, obj_id):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('Not Logged in!')
+        else:
+            author = user.author
+            like = Like.objects.create(author=author)
+            if obj == 'post':
+                try:
+                    post = Post.objects.get(id=obj_id)
+                except Post.DoesNotExist:
+                    raise Exception('No post with id %s found' % (obj_id))
+                post.likes.add(like)
+            elif obj == 'comment':
+                try:
+                    comment = Comment.objects.get(id=obj_id)
+                except Comment.DoesNotExist:
+                    raise Exception('No comment with id %s found' % (obj_id))
+                comment.likes.add(like)
+            else:
+                raise Exception('object not found to add like to. check field obj.')
+            return AddLike(like)
+
 class Query(object):
     all_posts = graphene.List(PostType)
     all_sources = graphene.List(SourceType)
@@ -237,6 +271,8 @@ class Query(object):
     all_tags = graphene.List(TagType)
     all_subtags = graphene.List(SubtagType)
     comments = graphene.List(CommentType)
+    p_likes = graphene.List(LikeType)
+    c_likes = graphene.List(LikeType)
 
     def resolve_all_posts(self, info, **kwargs):
         return Post.objects.all()
@@ -281,6 +317,12 @@ class Query(object):
     def resolve_comments(self, info):
         return Post.comments.all()
 
+    def resolve_p_likes(self, info):
+        return Post.likes.all()
+
+    def resolve_c_likes(self, info):
+        return Comment.likes.all()
+
 class Mutation(object):
     create_author = CreateAuthor.Field()
     create_post = CreatePost.Field()
@@ -288,6 +330,7 @@ class Mutation(object):
     create_subtag = CreateSubtag.Field()
     create_comment = CreateComment.Field()
     edit_post = EditPost.Field()
+    add_like = AddLike.Field()
 
 
 

@@ -44,19 +44,26 @@ class Tag(models.Model):
     return reverse('tag-detail', args=[str(self.id)])
 
 class Subtag(models.Model):
-  """Class representing a subtopic of news discussion or category. E.g. Tennis, Donald Trump, Ebay, etc."""
-  name = models.CharField(max_length=50)
-  description = models.CharField(max_length=500)
+    """Class representing a subtopic of news discussion or category. E.g. Tennis, Donald Trump, Ebay, etc."""
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=500)
 
 
-  def __str__(self):
-    return self.name
+    def __str__(self):
+        return self.name
 
-  def get_absolute_url(self):
-      """
-      Returns the url to access a particular subtag.
-      """
-      return reverse('subtag-detail', args=[str(self.id)])
+    def get_absolute_url(self):
+        """
+        Returns the url to access a particular subtag.
+        """
+        return reverse('subtag-detail', args=[str(self.id)])
+
+class Like(models.Model):
+    author = models.ForeignKey('Author', related_name="likes", related_query_name="likes", on_delete=models.CASCADE, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+      return self.author
 
 
 class Post(models.Model):
@@ -70,6 +77,7 @@ class Post(models.Model):
   sub_tags = models.ManyToManyField(Subtag, null=True)
   is_public = models.BooleanField(default=True)
   description = models.CharField(max_length=300, null=True)
+  likes = models.ManyToManyField(Like, null=True)
 
   class Meta:
     ordering = ['-created_at']
@@ -110,6 +118,7 @@ class Comment(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     is_public = models.BooleanField(default=True)
+    likes = models.ManyToManyField(Like, null=True)
 
     def __str__(self):
         return self.message
@@ -119,3 +128,10 @@ class Comment(models.Model):
         Returns the url to access a particular post instance.
         """
         return reverse('comment-detail', args=[str(self.id)])
+
+
+
+
+
+
+
