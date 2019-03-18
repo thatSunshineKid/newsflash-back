@@ -59,11 +59,29 @@ class Subtag(models.Model):
         return reverse('subtag-detail', args=[str(self.id)])
 
 class Like(models.Model):
-    author = models.ForeignKey('Author', related_name="likes", related_query_name="likes", on_delete=models.CASCADE, null=False)
+    author = models.ForeignKey('Author', related_name="owner", related_query_name="owner", on_delete=models.CASCADE, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    post_obj = models.ForeignKey('Post', related_name="post_obj", related_query_name="post_obj", on_delete=models.CASCADE, null=True)
+    comment_obj = models.ForeignKey('Comment', related_name="comment_obj", related_query_name="comment_obj", on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        unique_together = (('author','post_obj'),('author','comment_obj'))
 
     def __str__(self):
-      return self.author
+        return '%s %s' % (self.author.user.first_name, self.author.user.last_name)
+
+
+# class Plike(models.Model):
+#     author = models.ForeignKey('Author', related_name="plikes", related_query_name="plikes", on_delete=models.CASCADE, null=False)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     post = models.ForeignKey('Post', related_name="plikes", related_query_name="plikes", on_delete=models.CASCADE, null=False)
+
+#     class Meta:
+#         unique_together = ('author','post')
+
+#     def __str__(self):
+#         return self.author
+
 
 
 class Post(models.Model):

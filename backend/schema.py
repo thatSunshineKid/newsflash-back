@@ -242,18 +242,19 @@ class AddLike(graphene.Mutation):
             raise Exception('Not Logged in!')
         else:
             author = user.author
-            like = Like.objects.create(author=author)
             if obj == 'post':
                 try:
                     post = Post.objects.get(id=obj_id)
                 except Post.DoesNotExist:
                     raise Exception('No post with id %s found' % (obj_id))
+                like = Like.objects.create(author=author, post_obj=post)
                 post.likes.add(like)
             elif obj == 'comment':
                 try:
                     comment = Comment.objects.get(id=obj_id)
                 except Comment.DoesNotExist:
                     raise Exception('No comment with id %s found' % (obj_id))
+                like = Like.objects.create(author=author, comment_obj=comment)
                 comment.likes.add(like)
             else:
                 raise Exception('object not found to add like to. check field obj.')
