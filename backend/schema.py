@@ -91,6 +91,29 @@ class CreatePost(graphene.Mutation):
             post.save()
         return CreatePost(post=post)
 
+class EditComment(graphene.Mutation):
+    comment = graphene.Field(CommentType)
+
+    class Arguments:
+        comment_id = graphene.Int(required=True)
+        message = graphene.String()
+
+    def mutate(self, info, comment_id, message):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('not logged in!')
+        else:
+            try:
+                comment = Comment.objects.get(id=comment_id)
+            except Comment.DoesNotExist:
+                raise Exception('No comment found with id %s' % (comment_id))
+            if (comment.author.id != user.author.id):
+                raise Exception('only the author can edit their comment.')
+            else:
+                comment.message = message
+                comment.save()
+                return EditComment(comment)
+
 class EditPost(graphene.Mutation):
     post = graphene.Field(PostType)
 
@@ -332,6 +355,7 @@ class Mutation(object):
     create_comment = CreateComment.Field()
     edit_post = EditPost.Field()
     add_like = AddLike.Field()
+    edit_comment = EditComment.Field()
 
 
 
