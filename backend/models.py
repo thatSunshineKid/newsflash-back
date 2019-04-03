@@ -61,8 +61,8 @@ class Subtag(models.Model):
 class Like(models.Model):
     author = models.ForeignKey('Author', related_name="likes", related_query_name="likes", on_delete=models.CASCADE, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    post_obj = models.ForeignKey('Post', related_name="post_obj", related_query_name="post_obj", on_delete=models.CASCADE, null=True)
-    comment_obj = models.ForeignKey('Comment', related_name="comment_obj", related_query_name="comment_obj", on_delete=models.CASCADE, null=True)
+    post_obj = models.ForeignKey('Post', related_name="post_obj", related_query_name="post_obj", on_delete=models.CASCADE, null=True, blank=True)
+    comment_obj = models.ForeignKey('Comment', related_name="comment_obj", related_query_name="comment_obj", on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         unique_together = (('author','post_obj'),('author','comment_obj'))
@@ -91,11 +91,11 @@ class Post(models.Model):
   url = models.URLField(max_length=1000)
   source = models.ForeignKey('Source', on_delete=models.SET_NULL, null=True)
   created_at = models.DateTimeField(auto_now_add=True)
-  tags = models.ManyToManyField(Tag, null=True)
-  sub_tags = models.ManyToManyField(Subtag, null=True)
+  tags = models.ManyToManyField(Tag, null=True, blank=True)
+  sub_tags = models.ManyToManyField(Subtag, null=True, blank=True)
   is_public = models.BooleanField(default=True)
-  description = models.CharField(max_length=300, null=True)
-  likes = models.ManyToManyField(Like, null=True)
+  description = models.CharField(max_length=300, null=True, blank=True)
+  likes = models.ManyToManyField(Like, null=True, blank=True)
 
   class Meta:
     ordering = ['-created_at']
@@ -136,7 +136,7 @@ class Comment(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     is_public = models.BooleanField(default=True)
-    likes = models.ManyToManyField(Like, null=True)
+    likes = models.ManyToManyField(Like, null=True, blank=True)
 
     def __str__(self):
         return self.message
